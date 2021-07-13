@@ -3,6 +3,7 @@ import 'package:flube/src/helpers/fonts.dart';
 import 'package:flube/src/helpers/validators.dart';
 import 'package:flube/src/widgets/customfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flube/src/services/downloader.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -12,7 +13,6 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final _url = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _key = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         centerTitle: true,
       ),
-      resizeToAvoidBottomInset: false,1
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -45,6 +45,7 @@ class _HomeViewState extends State<HomeView> {
                 print('gg');
                 if (_validateAndSave()!) {
                   print(_url.text);
+                downloadVideo(context, _url.text);
                 }
               },
               child: Text(

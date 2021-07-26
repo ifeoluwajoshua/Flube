@@ -1,17 +1,15 @@
-import 'package:flube/src/providers/shared.dart';
-import 'package:flube/src/services/downloader.dart';
-import 'package:flutter/material.dart';
+import 'package:flube/src/services/permission.dart';
+import 'package:flube/src/services/video_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-final youtubeVideoProvider = Provider((ref) => YoutubeDownloader());
+final youtube = Provider((ref) => YoutubeExplode());
 
-final youtubeDetailsProvider = FutureProvider<dynamic>((ref) async {
-  final detailsProvider = ref.read(youtubeVideoProvider);
-  return detailsProvider.getVideoDetails('url');
-});
+final permissionProvider = Provider<StoragePermission>((ref) => StoragePermission());
 
-final youtubeDownloader = FutureProvider<dynamic>((ref) async {
- final permission = ref.read(permissionProvider);
- //Switch permission.state;
+final youtubeVideoProvider = ChangeNotifierProvider<YoutubeDownloader>((ref) => YoutubeDownloader((ref.read)));
 
+final youtubeDetailsProvider = FutureProvider.autoDispose.family<dynamic, String>((ref, url) async {
+  final youtube = ref.read(youtubeVideoProvider);
+  return youtube.getVideo(url);
 });

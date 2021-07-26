@@ -1,18 +1,17 @@
 import 'package:flube/src/widgets/toast.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class StoragePermission extends StateNotifier {
-  StoragePermission(state) : super(false);
-
+class StoragePermission {
   // Ask permission
 
   Future<bool> askPermissions() async {
+    bool state;
     PermissionStatus permissionStatus = await _getStoragePermission();
     if (permissionStatus == PermissionStatus.granted) {
       print('Granted');
       state = true;
     } else {
+      state = false;
       _handleInvalidPermissions(permissionStatus);
     }
     return state;
@@ -39,6 +38,5 @@ class StoragePermission extends StateNotifier {
     } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
       showToast('Access to Storage Permanetyl Denied');
     }
-    state = false;
   }
 }

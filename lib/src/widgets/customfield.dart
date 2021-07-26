@@ -1,5 +1,24 @@
 import 'package:flube/src/helpers/fonts.dart';
+import 'package:flube/src/helpers/validators.dart';
 import 'package:flutter/material.dart';
+
+class UrlField extends StatelessWidget {
+  const UrlField({
+    Key? key,
+    required this.formkey,
+    required this.url,
+    this.hint,
+  }) : super(key: key);
+  final TextEditingController url;
+  final GlobalKey formkey;
+  final String? hint;
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+        key: formkey,
+        child: customField(url, validateN, hint!));
+  }
+}
 
 Widget customField(
   TextEditingController text,

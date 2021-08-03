@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
+import 'package:flube/src/helpers/enum.dart';
 import 'package:flube/src/models/youtube_details.dart';
 import 'package:flube/src/providers/youtubeproviders.dart';
 import 'package:flube/src/widgets/toast.dart';
@@ -13,17 +14,24 @@ class YoutubeDownloader extends ChangeNotifier {
   final Reader _read;
   YoutubeDownloader(this._read);
   // Declaration
+  Status _status = Status.initial;
+  
   Video? _videodetails;
   VideoDetails? _details;
   double _count = 0;
+  var datalength;
   // Get Dclaration
   get count => _count;
   VideoDetails? get details => _details;
+  Status get status => _status;
 
-  Future getVideo(String url) async {
+
+  Future getVideoDetails(String url) async {
     print('Getting Video Details');
     // Getting Video Details
-
+    _details = null;
+    _status = Status.start;
+    notifyListeners();
     try {
       var id = VideoId(url.trim());
       _videodetails = await _read(youtube).videos.get(id);
@@ -31,6 +39,8 @@ class YoutubeDownloader extends ChangeNotifier {
       var video = manifest.muxed.last;
       var audio = manifest.audioOnly.last;
       //audio.bitrate;
+      var videoLength = video.size.totalBytes;
+      var auidoLength = audio.size.totalBytes;
 
       print(_videodetails!.thumbnails);
       print(_videodetails!.title);
@@ -42,55 +52,69 @@ class YoutubeDownloader extends ChangeNotifier {
       print(audio.size);
 
       _details = VideoDetails(
-        _videodetails!.title,
-        video.videoQualityLabel.toString(),
-        audio.bitrate.toString(),
-        video.size.totalBytes.toString(),
-        audio.size.totalBytes.toString(),
-      );
+          _videodetails!.title,
+          video.videoQualityLabel.toString(),
+          audio.bitrate.toString(),
+          video.size.totalMegaBytes.toStringAsFixed(0),
+          audio.size.totalBytes.toString(),
+          video,
+          videoLength,
+          auidoLength);
       notifyListeners();
       print('Done Getting');
-      //Handling  Permission
 
-      bool gotten = await _read(permissionProvider).askPermissions();
-
-      if (gotten) {
-        // Build Directory
-        print('Buildinig Directory');
-        var dir = await DownloadsPathProvider.downloadsDirectory;
-        var filePath = path.join(dir!.uri.toFilePath(),
-            '${_videodetails!.title}.${video.container.name}');
-
-        // Open the file to write.
-        print('Opening File');
-        var file = File(filePath);
-        var fileStream = file.openWrite();
-        // Download Video
-        print('Downloading');
-        var videodonwloading = _read(youtube).videos.streamsClient.get(video);
-
-        await for (var data in videodonwloading) {
-          _count += data.length.toDouble();
-          notifyListeners();
-          fileStream.add(data);
-        }
-        // Close instance of the file
-
-        await fileStream.flush();
-        await fileStream.close();
-        print('Done Downloading and Saving');
-      } else {
-        showToast('Storage Permission Denied');
-      }
-      print('Finished YoutubeVideo Service');
+      print('Finished Getting Details Service');
     } on SocketException {
       print('netwoek error');
-      showToast('network error');
+      showToast('Network error, Check your network and try again');
     } catch (e) {
       print('errror that just happened is $e');
-       showToast('Big error');
+      showToast('Big error');
+    }
+     _status = Status.end;
+    notifyListeners();
+  }
+
+  Future downloadVideo(MuxedStreamInfo video, var len) async {
+    print('Taking Permission');
+    //Handling  Permission
+
+    bool gotten = await _read(permissionProvider).askPermissions();
+
+    if (gotten) {
+      // Build Directory
+      print('Buildinig Directory');
+      var dir = await DownloadsPathProvider.downloadsDirectory;
+      var filePath = path.join(dir!.uri.toFilePath(),
+          '${_videodetails!.title}.${video.container.name}');
+
+      // Open the file to write.
+      print('Opening File');
+      var file = File(filePath);
+      var fileStream = file.openWrite();
+      // Download Video
+      print('Downloading');
+      var videodonwloading = _read(youtube).videos.streamsClient.get(video);
+
+      await for (var data in videodonwloading) {
+        datalength += data.length.toDouble();
+        _count = ((datalength / len) * 100).ceil();
+        notifyListeners();
+        print('a $count');
+        print('b $_count');
+        fileStream.add(data);
+      }
+      // Close instance of the file
+
+      await fileStream.flush();
+      await fileStream.close();
+      print('Done Downloading and Saving');
+    } else {
+      await showToast('Storage Permission Denied');
     }
   }
+
+  Future downloadAudio() async {}
 }
 
 downloadVideo(BuildContext context, String url) async {

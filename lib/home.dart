@@ -5,7 +5,7 @@ import 'package:flube/src/widgets/customfield.dart';
 import 'package:flube/src/widgets/filtercard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flube/src/helpers/enum.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -44,10 +44,12 @@ class _HomeViewState extends State<HomeView> {
               hint: 'Enter Valid Youtube Url',
             ),
             const SizedBox(height: 30),
-            enterButton(),
+            FlubeButton(function: (){
+              buttonAction();
+            }),
             const SizedBox(height: 30),
             FilterCard(),
-             const SizedBox(height: 30),
+            const SizedBox(height: 30),
             ContentNotice()
           ],
         ),
@@ -55,20 +57,12 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget enterButton() {
-    return ElevatedButton(
-      onPressed: () {
-        print('gg');
-        if (_validateAndSave()!) {
-          print(_url.text);
-          context.read(youtubeDetailsProvider(_url.text));
-        }
-      },
-      child: Text(
-        'Enter',
-        style: nStyle.copyWith(color: Colors.white, fontSize: 20),
-      ),
-    );
+  buttonAction() {
+    print('gg');
+    if (_validateAndSave()!) {
+      print(_url.text);
+      context.read(youtubeVideoProvider).getVideoDetails(_url.text);
+    }
   }
 
   bool? _validateAndSave() {
@@ -78,5 +72,27 @@ class _HomeViewState extends State<HomeView> {
       return true;
     }
     return false;
+  }
+}
+
+class FlubeButton extends ConsumerWidget {
+  const FlubeButton({
+    Key? key,
+    required this.function
+  }) : super(key: key);
+  final Function()? function;
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final status = watch(youtubeVideoProvider);
+    return  ElevatedButton(
+            onPressed:  status.status == Status.start? (){} : function,
+            child: status.status == Status.start
+        ?  CircularProgressIndicator(
+              color: Colors.white,
+            ) : Text(
+              'Enter',
+              style: nStyle.copyWith(color: Colors.white, fontSize: 20),
+            )
+          );
   }
 }

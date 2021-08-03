@@ -5,11 +5,10 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 final youtube = Provider((ref) => YoutubeExplode());
 
-final permissionProvider = Provider<StoragePermission>((ref) => StoragePermission());
+final permissionProvider =
+    Provider<StoragePermission>((ref) => StoragePermission());
 
-final youtubeVideoProvider = ChangeNotifierProvider<YoutubeDownloader>((ref) => YoutubeDownloader((ref.read)));
+final youtubeVideoProvider = ChangeNotifierProvider<YoutubeDownloader>(
+    (ref) => YoutubeDownloader((ref.read)));
 
-final youtubeDetailsProvider = FutureProvider.autoDispose.family<dynamic, String>((ref, url) async {
-  final youtube = ref.read(youtubeVideoProvider);
-  return youtube.getVideo(url);
-});
+

@@ -1,13 +1,19 @@
-
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class VideoDetails {
-  VideoDetails(this.title, this.videoQuality,this.audioBitrate, this.videoSize,this.audioSize);
+  VideoDetails(this.title, this.videoQuality, this.audioBitrate, this.videoSize,
+      this.audioSize, this.video, this.videoLength, this.audioLength);
+
   String title;
   String videoQuality;
   String audioBitrate;
   String videoSize;
   String audioSize;
+  MuxedStreamInfo video;
+  var videoLength;
+  var audioLength;
 
   @override
-  String toString() => '- $title,\n- $videoQuality\n- $audioBitrate\n- $videoSize\n- $audioSize';
+  String toString() =>
+      '- $title,\n- $videoQuality\n- $audioBitrate\n- $videoSize\n- $audioSize';
 }

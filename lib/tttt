@@ -210,3 +210,11 @@ Future<void> download(String id) async {
   }
   await output.close();
 }
+ gg
+I/flutter (19334): https://youtu.be/S9f0WoQBWZo
+I/flutter (19334): Getting Video Details
+I/flutter (19334): errror that just happened is FatalFailureException: Failed to perform an HTTP request to YouTube due to a fatal failure.
+I/flutter (19334): In most cases, this error indicates that YouTube most likely changed something, which broke the library.
+I/flutter (19334): If this issue persists, please report it on the project's GitHub page.
+I/flutter (19334): Request: GET https://youtube.com/get_video_info?video_id=S9f0WoQBWZo&el=embedded&eurl=https%3A%2F%2Fyoutube.googleapis.com%2Fv%2FS9f0WoQBWZo&hl=en&html5=1&c=TVHTML5&cver=6.20180913
+I/flutter (19334): Response: (410)

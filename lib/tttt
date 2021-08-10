@@ -57,13 +57,13 @@ extractvideo(url) async {
   filename1 = 'Downloading ${video.title}.${audio.container.name}';
   // Listen for data received.
   await for (var data in audioStream) {
-    // Keep track of the current downloaded data.
+       // Keep track of the current downloaded data.
     count += data.length.toDouble();
 
     // Calculate the current progress.
 
     double progress = ((count / len) / 1);
-    // Update the progressbar.
+    // Update the progressbar. 
     logCallback(100, progress);
 
     // Write to file.
@@ -101,7 +101,7 @@ extractaudio(url) async {
       .replaceAll('?', '')
       .replaceAll('"', '')
       .replaceAll('<', '')
-      .replaceAll('>', '')
+      .replaceAll('>', '' )
       .replaceAll('|', '');
   var file = File('/storage/emulated/0/Download/$fileName');
 

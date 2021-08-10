@@ -1,8 +1,10 @@
 import 'package:flube/src/helpers/colors.dart';
+import 'package:flube/src/helpers/enum.dart';
 import 'package:flube/src/helpers/fonts.dart';
 import 'package:flube/src/helpers/responsive.dart';
 import 'package:flube/src/models/youtube_details.dart';
 import 'package:flube/src/providers/youtubeproviders.dart';
+import 'package:flube/src/widgets/download_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -70,7 +72,7 @@ class FilterCard extends ConsumerWidget {
                           print(' Video');
                           context.read(youtubeVideoProvider).downloadVideo(
                               videodetails.video, videodetails.videoLength);
-                        }),
+                        }, watch),
                         filterDivider(context),
                         qualityFilter(
                             context,
@@ -79,15 +81,16 @@ class FilterCard extends ConsumerWidget {
                             videodetails.audioSize, () {
                           print(' Audio');
                           context.read(youtubeVideoProvider).downloadAudio();
-                        }),
+                        }, watch),
                       ])),
             ],
           )
         : SizedBox.shrink();
   }
 
-  Widget qualityFilter(
-      context, String type, String quality, String size, Function() fun) {
+  Widget qualityFilter(context, String type, String quality, String size,
+      Function() fun, ScopedReader watch) {
+    final dstatus = watch(youtubeVideoProvider);
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Text(
         type,
@@ -104,20 +107,26 @@ class FilterCard extends ConsumerWidget {
             fontWeight: FontWeight.w400),
       ),
       Text(
-        size,
+        '$size MB',
         style: nStyle.copyWith(
             backgroundColor: Colors.grey.shade100,
             fontSize: SizeConfig.textSize(context, 3.7),
             fontWeight: FontWeight.w400),
       ),
-      ElevatedButton(
-        onPressed: fun,
-        child: Text(
-          'Download',
-          style: nStyle.copyWith(
-              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w400),
-        ),
-      ),
+      dstatus.dstatus == Status.dend
+          ? Icon(Icons.done, color: Colors.green, size: 25)
+          : dstatus.dstatus == Status.dstart
+              ? DownLoadPercentIndicator()
+              : ElevatedButton(
+                  onPressed: fun,
+                  child: Text(
+                    'Download',
+                    style: nStyle.copyWith(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ),
     ]);
   }
 

@@ -15,16 +15,17 @@ class YoutubeDownloader extends ChangeNotifier {
   YoutubeDownloader(this._read);
   // Declaration
   Status _status = Status.initial;
-  
+  Status _dstatus = Status.dinitial;
+
   Video? _videodetails;
   VideoDetails? _details;
   double _count = 0;
-  var datalength;
+  double datalength = 0;
   // Get Dclaration
   get count => _count;
   VideoDetails? get details => _details;
   Status get status => _status;
-
+  Status get dstatus => _dstatus;
 
   Future getVideoDetails(String url) async {
     print('Getting Video Details');
@@ -54,10 +55,11 @@ class YoutubeDownloader extends ChangeNotifier {
       _details = VideoDetails(
           _videodetails!.title,
           video.videoQualityLabel.toString(),
-          audio.bitrate.toString(),
+          '',
           video.size.totalMegaBytes.toStringAsFixed(0),
-          audio.size.totalBytes.toString(),
+          audio.size.totalMegaBytes.toStringAsFixed(0),
           video,
+          audio,
           videoLength,
           auidoLength);
       notifyListeners();
@@ -71,46 +73,64 @@ class YoutubeDownloader extends ChangeNotifier {
       print('errror that just happened is $e');
       showToast('Big error');
     }
-     _status = Status.end;
+    _status = Status.end;
     notifyListeners();
   }
 
   Future downloadVideo(MuxedStreamInfo video, var len) async {
-    print('Taking Permission');
-    //Handling  Permission
+    try {
+      print('Taking Permission');
+      //Handling  Permission
 
-    bool gotten = await _read(permissionProvider).askPermissions();
+      bool gotten = await _read(permissionProvider).askPermissions();
 
-    if (gotten) {
-      // Build Directory
-      print('Buildinig Directory');
-      var dir = await DownloadsPathProvider.downloadsDirectory;
-      var filePath = path.join(dir!.uri.toFilePath(),
-          '${_videodetails!.title}.${video.container.name}');
-
-      // Open the file to write.
-      print('Opening File');
-      var file = File(filePath);
-      var fileStream = file.openWrite();
-      // Download Video
-      print('Downloading');
-      var videodonwloading = _read(youtube).videos.streamsClient.get(video);
-
-      await for (var data in videodonwloading) {
-        datalength += data.length.toDouble();
-        _count = ((datalength / len) * 100).ceil();
+      if (gotten) {
+        // Build Directory
+        _dstatus = Status.dstart;
         notifyListeners();
-        print('a $count');
-        print('b $_count');
-        fileStream.add(data);
-      }
-      // Close instance of the file
+        print('Buildinig Directory');
+        var dir = await DownloadsPathProvider.downloadsDirectory;
+        var filePath = path.join(dir!.uri.toFilePath(),
+            '${_videodetails!.title}.${video.container.name}');
 
-      await fileStream.flush();
-      await fileStream.close();
-      print('Done Downloading and Saving');
-    } else {
-      await showToast('Storage Permission Denied');
+        // Open the file to write.
+        print('Opening File');
+        var file = File(filePath);
+        var fileStream = file.openWrite();
+        // Download Video
+        print('Downloading');
+        var videodownloading = _read(youtube).videos.streamsClient.get(video);
+        
+
+        await for (var data in videodownloading) {
+          print('data is $data lenght is $len');
+          datalength += data.length.ceilToDouble();
+          print('datalenfgth is $datalength');
+          _count = ((datalength / len) * 1);
+          notifyListeners();
+          print('a $count');
+          print('b $_count');
+          fileStream.add(data);
+        }
+        // Close instance of the file
+
+        await fileStream.flush();
+        await fileStream.close();
+        _dstatus = Status.dend;
+        notifyListeners();
+        print('Done Downloading and Saving');
+      } else {
+        await showToast('Storage Permission Denied');
+      }
+    } on SocketException {
+      _dstatus = Status.derror;
+      notifyListeners();
+      print('Network Error');
+      showToast('Network Error, Check Your Internet Connection and Try Again');
+    } catch (e) {
+      _dstatus = Status.derror;
+      notifyListeners();
+      print('Downloading error is - $e');
     }
   }
 

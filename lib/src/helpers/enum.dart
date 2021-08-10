@@ -1,1 +1,1 @@
-enum Status {initial, start, end }
+enum Status { initial, start, end, error, dinitial, dstart, dend, derror }

@@ -2,6 +2,7 @@ import 'package:flube/src/helpers/fonts.dart';
 import 'package:flube/src/providers/youtubeproviders.dart';
 import 'package:flube/src/widgets/contentnotice.dart';
 import 'package:flube/src/widgets/customfield.dart';
+import 'package:flube/src/widgets/download_indicator.dart';
 import 'package:flube/src/widgets/filtercard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,9 +49,10 @@ class _HomeViewState extends State<HomeView> {
               buttonAction();
             }),
             const SizedBox(height: 30),
-            FilterCard(),
+           FilterCard(),
+          // DownLoadPercentIndicator(),
             const SizedBox(height: 30),
-            ContentNotice()
+          //  ContentNotice()
           ],
         ),
       ),

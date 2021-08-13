@@ -8,7 +8,6 @@ final youtube = Provider((ref) => YoutubeExplode());
 final permissionProvider =
     Provider<StoragePermission>((ref) => StoragePermission());
 
-final youtubeVideoProvider = ChangeNotifierProvider<YoutubeDownloader>(
-    (ref) => YoutubeDownloader((ref.read)));
-
-
+final youtubeVideoProvider =
+    ChangeNotifierProvider.autoDispose<YoutubeDownloader>(
+        (ref) => YoutubeDownloader((ref.read)));

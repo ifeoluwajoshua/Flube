@@ -113,9 +113,9 @@ class FilterCard extends ConsumerWidget {
             fontSize: SizeConfig.textSize(context, 3.7),
             fontWeight: FontWeight.w400),
       ),
-      dstatus.dstatus == Status.dend
+      dstatus.dstatus == Status.end
           ? Icon(Icons.done, color: Colors.green, size: 25)
-          : dstatus.dstatus == Status.dstart
+          : dstatus.dstatus == Status.start
               ? DownLoadPercentIndicator()
               : ElevatedButton(
                   onPressed: fun,

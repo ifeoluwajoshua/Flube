@@ -15,7 +15,7 @@ class YoutubeDownloader extends ChangeNotifier {
   YoutubeDownloader(this._read);
   // Declaration
   Status _status = Status.initial;
-  Status _dstatus = Status.dinitial;
+  Status _dstatus = Status.initial;
 
   Video? _videodetails;
   VideoDetails? _details;
@@ -62,6 +62,10 @@ class YoutubeDownloader extends ChangeNotifier {
           audio,
           videoLength,
           auidoLength);
+
+      _dstatus = Status.initial;
+      _count = 0;
+     datalength = 0;
       notifyListeners();
       print('Done Getting');
 
@@ -78,6 +82,8 @@ class YoutubeDownloader extends ChangeNotifier {
   }
 
   Future downloadVideo(MuxedStreamInfo video, var len) async {
+    _dstatus = Status.start;
+    notifyListeners();
     try {
       print('Taking Permission');
       //Handling  Permission
@@ -86,7 +92,7 @@ class YoutubeDownloader extends ChangeNotifier {
 
       if (gotten) {
         // Build Directory
-        _dstatus = Status.dstart;
+        _dstatus = Status.start;
         notifyListeners();
         print('Buildinig Directory');
         var dir = await DownloadsPathProvider.downloadsDirectory;
@@ -100,7 +106,6 @@ class YoutubeDownloader extends ChangeNotifier {
         // Download Video
         print('Downloading');
         var videodownloading = _read(youtube).videos.streamsClient.get(video);
-        
 
         await for (var data in videodownloading) {
           print('data is $data lenght is $len');
@@ -116,19 +121,19 @@ class YoutubeDownloader extends ChangeNotifier {
 
         await fileStream.flush();
         await fileStream.close();
-        _dstatus = Status.dend;
+        _dstatus = Status.end;
         notifyListeners();
         print('Done Downloading and Saving');
       } else {
         await showToast('Storage Permission Denied');
       }
     } on SocketException {
-      _dstatus = Status.derror;
+      _dstatus = Status.error;
       notifyListeners();
       print('Network Error');
       showToast('Network Error, Check Your Internet Connection and Try Again');
     } catch (e) {
-      _dstatus = Status.derror;
+      _dstatus = Status.error;
       notifyListeners();
       print('Downloading error is - $e');
     }
